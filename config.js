@@ -8,6 +8,7 @@ if (missingEnvs.length) {
 }
 
 module.exports = {
-  mongoURI: process.env.MONGO_URI || "mongodb://localhost:27017/ecommerce",
+  mongoURI: process.env.MONGO_URI || "mongodb://localhost:27017/ecommereceapi",
   port: process.env.PORT || 3001,
+  jwtSecret: "@#5435()&<>#Mnar",
 };

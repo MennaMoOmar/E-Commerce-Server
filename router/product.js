@@ -15,9 +15,13 @@ const validateImage = require("../middleware/validationImage");
 
 /* Routes */
 //get all posts
+// api/product
 router.get("/", async (req, res, next) => {
   try {
-    const products = await Product.find({});
+    const products = await Product.find({}).populate("categoryId", [
+      "name",
+      "categoryImage",
+    ]);
     res.send(products);
   } catch (err) {
     err.statusCode = 442;
@@ -28,8 +32,57 @@ router.get("/", async (req, res, next) => {
 //get product by id
 router.get("/:id", async (req, res, next) => {
   try {
-    const product = await Product.find({ id: req.params.id });
+    const product = await Product.findById(req.params.id).populate(
+      "categoryId",
+      ["name", "categoryImage"]
+    );
     res.send(product);
+  } catch (err) {
+    res.status(422).send({
+      error: err,
+      statusCode: 422,
+    });
+  }
+});
+
+//get product by category
+router.get("/category/:id", async (req, res, next) => {
+  try {
+    const product = await Product.find({ categoryId: req.params.id }).populate(
+      "categoryId",
+      ["name", "categoryImage"]
+    );
+    res.send(product);
+  } catch (err) {
+    res.status(422).send({
+      error: err,
+      statusCode: 422,
+    });
+  }
+});
+
+//get product by code
+router.get("/code/:code", async (req, res, next) => {
+  try {
+    const product = await Product.findOne({ code: req.params.code });
+    res.send(product);
+  } catch (err) {
+    res.status(422).send({
+      error: err,
+      statusCode: 422,
+    });
+  }
+});
+
+//get product by category 4 only
+router.get("/category/slice/:id", async (req, res, next) => {
+  try {
+    const product = await Product.find({ categoryId: req.params.id }).populate(
+      "categoryId",
+      ["name", "categoryImage"]
+    );
+    const sliceproduct = product.slice(0, 4);
+    res.send(sliceproduct);
   } catch (err) {
     res.status(422).send({
       error: err,
@@ -40,18 +93,16 @@ router.get("/:id", async (req, res, next) => {
 
 //add product
 router.post(
-  "/addProduct",
-  checkRequiredParams(["name", "category", "price", "category"]),
-  validateRequest([
-    body("name").isLength({ min: 3, max: 20 }),
-    body("category").isLength({ min: 3, max: 20 }),
-  ]),
+  "/addproduct/",
+  checkRequiredParams(["name", "price", "code", "description", "categoryId"]),
+  validateRequest([body("name").isLength({ min: 3, max: 100 })]),
   async (req, res, next) => {
     const createdProduct = new Product({
       name: req.body.name,
-      category: req.body.category,
       price: req.body.price,
-      quantity: req.body.quantity,
+      code: req.body.code,
+      description: req.body.description,
+      categoryId: req.body.categoryId,
     });
     const product = await createdProduct.save();
     res.status(200).send(product);
@@ -63,12 +114,14 @@ router.patch("/:id", async (req, res, next) => {
   try {
     const id = req.params.id;
     let product = await Product.findById(id);
+
     await product
       .update({
         name: req.body.name || product.name,
-        category: req.body.category || product.category,
         price: req.body.price || product.price,
-        quantity: req.body.quantity || product.quantity,
+        code: req.body.code || product.code,
+        description: req.body.description || product.description,
+        categoryId: req.body.categoryId || product.categoryId,
       })
       .exec();
     res.status(200).send({ message: "product changed succesfuly" });
@@ -121,7 +174,7 @@ router.post(
         });
       }
       const buffer = await sharp(req.file.buffer).png().toBuffer();
-      product.image = buffer;
+      product.productImage = buffer;
       await product.save();
       res.send({
         message: "image added successfully",
@@ -139,14 +192,14 @@ router.post(
 router.get("/productImg/:id", async (req, res, next) => {
   try {
     const product = await Product.findById(req.params.id);
-    if (!product || !product.image) {
+    if (!product || !product.productImage) {
       return res.status(422).send({
         error: "product not found",
         statusCode: 422,
       });
     }
     res.set("Content-Type", "image/jpg");
-    res.send(product.image);
+    res.send(product.productImage);
   } catch (err) {
     res.status(400).send({
       error: err,

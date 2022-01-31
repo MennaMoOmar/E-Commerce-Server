@@ -1,7 +1,7 @@
 {
-  "name": "e-commerce",
+  "name": "server",
   "version": "1.0.0",
-  "description": "e-commerece application",
+  "description": "forsage-eg",
   "main": "service.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -9,19 +9,19 @@
     "dev": "nodemon",
     "debug": "nodemon --inspect ."
   },
-  "author": "menna",
+  "author": "",
   "license": "ISC",
-  "devDependencies": {
-    "nodemon": "^2.0.7"
-  },
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "express-async-errors": "^3.1.1",
-    "express-validator": "^6.11.1",
-    "mongoose": "^5.12.13",
+    "express-validator": "^6.12.0",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.12.14",
     "multer": "^1.4.2",
+    "nodemon": "^2.0.7",
     "sharp": "^0.28.3"
   }
 }
